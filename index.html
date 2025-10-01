@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>League Tracker</title>
+</head>
+<body>
+  <h1>Add Game Result</h1>
+  <form id="gameForm">
+    <input name="home_team" placeholder="Home Team" required />
+    <input name="away_team" placeholder="Away Team" required />
+    <input name="home_score" type="number" required />
+    <input name="away_score" type="number" required />
+    <button type="submit">Submit</button>
+  </form>
+
+  <h2>Standings</h2>
+  <button onclick="loadStandings()">Refresh</button>
+  <pre id="standings"></pre>
+
+  <script>
+    const API_BASE = "https://your-fastapi-app.onrender.com";
+
+    document.getElementById("gameForm").onsubmit = async (e) => {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(e.target));
+      data.home_score = parseInt(data.home_score);
+      data.away_score = parseInt(data.away_score);
+
+      await fetch(`${API_BASE}/games`, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(data)
+      });
+      loadStandings();
+    };
+
+    async function loadStandings() {
+      const res = await fetch(`${API_BASE}/standings`);
+      const standings = await res.json();
+      document.getElementById("standings").textContent = JSON.stringify(standings, null, 2);
+    }
+  </script>
+</body>
+</html>
